@@ -1,0 +1,15 @@
+name: drift-guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  drift-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run drift guard
+        run: bash ./drift-guard.sh
+
