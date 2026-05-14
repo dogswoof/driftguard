@@ -6,6 +6,21 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-05-14
+
+### Fixed
+
+- grep fallback was missing `-F` (`--fixed-strings`), causing literals with regex metacharacters (e.g. `.` in IP addresses) to match incorrectly
+
+### Added
+
+- `EXTENSIONS` array — configurable file types to scan (default: `*.md`, `*.sh`); add `*.yml`, `*.yaml`, `*.conf`, etc. as needed
+- `--version` / `-V` flag — prints the embedded `DRIFT_GUARD_VERSION`
+
+### Changed
+
+- `is_allowed_path` now uses relative-path prefix matching instead of substring matching, preventing false allowlist hits on paths that merely contain an allowlist entry as a substring
+
 ## [0.1.2] - 2026-05-14
 
 ### Fixed
