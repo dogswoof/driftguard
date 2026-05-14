@@ -5,9 +5,12 @@
 #   bash ./drift-guard.sh            # check (default)
 #   bash ./drift-guard.sh --check    # check
 #   bash ./drift-guard.sh --list     # print config
+#   bash ./drift-guard.sh --version  # print version
 #   bash ./drift-guard.sh --help     # help
 
 set -euo pipefail
+
+DRIFT_GUARD_VERSION="0.1.3"
 
 LITERALS=(
   # Use reserved examples so this repo doesn't leak real environment details.
@@ -21,6 +24,12 @@ LITERALS=(
   "19132"               # example port (pick something repo-specific)
   "42424"               # example port (pick something repo-specific)
   "/srv/backup"         # example path
+)
+
+EXTENSIONS=(
+  "*.md"
+  "*.sh"
+  # Add more as needed, e.g. "*.yml" "*.yaml" "*.conf" "*.toml"
 )
 
 ALLOWLIST=(
@@ -56,7 +65,7 @@ Drift Guard
 Checks that canonical-only literals only appear in allowlisted files/folders.
 
 Usage:
-  bash ./drift-guard.sh [--check|--list|--help]
+  bash ./drift-guard.sh [--check|--list|--version|--help]
 
 Exit codes:
   0  no drift detected
@@ -66,11 +75,17 @@ EOF
 }
 
 print_config() {
+  echo "DRIFT_GUARD_VERSION=$DRIFT_GUARD_VERSION"
   echo "REPO_ROOT=$REPO_ROOT"
   echo ""
   echo "LITERALS:"
   for literal in "${LITERALS[@]}"; do
     echo "  - $literal"
+  done
+  echo ""
+  echo "EXTENSIONS:"
+  for ext in "${EXTENSIONS[@]}"; do
+    echo "  - $ext"
   done
   echo ""
   echo "ALLOWLIST:"
@@ -94,9 +109,10 @@ list_matches() {
       --no-heading
       --line-number
       --fixed-strings
-      --glob "*.md"
-      --glob "*.sh"
     )
+    for ext in "${EXTENSIONS[@]}"; do
+      rg_args+=( --glob "$ext" )
+    done
     for dir in "${IGNORE_DIRS[@]}"; do
       rg_args+=( --glob "!${dir}/**" )
     done
@@ -105,9 +121,11 @@ list_matches() {
     local -a grep_args
     grep_args=(
       -rn
-      --include="*.md"
-      --include="*.sh"
+      -F
     )
+    for ext in "${EXTENSIONS[@]}"; do
+      grep_args+=( --include="$ext" )
+    done
     for dir in "${IGNORE_DIRS[@]}"; do
       grep_args+=( --exclude-dir="$dir" )
     done
@@ -117,9 +135,10 @@ list_matches() {
 
 is_allowed_path() {
   local file="$1"
+  local rel="${file#"$REPO_ROOT/"}"
   local allow
   for allow in "${ALLOWLIST[@]}"; do
-    if [[ "$file" == *"$allow"* ]]; then
+    if [[ "$rel" == "$allow"* ]]; then
       return 0
     fi
   done
@@ -143,8 +162,9 @@ do_check() {
 MODE="check"
 case "${1:-}" in
   ""|--check) MODE="check" ;;
-  --list) MODE="list" ;;
-  --help|-h) MODE="help" ;;
+  --list)     MODE="list" ;;
+  --version|-V) MODE="version" ;;
+  --help|-h)  MODE="help" ;;
   *)
     echo "Unknown option: $1" >&2
     echo "" >&2
@@ -154,9 +174,10 @@ case "${1:-}" in
 esac
 
 case "$MODE" in
-  help) print_help; exit 0 ;;
-  list) print_config; exit 0 ;;
-  check) do_check ;;
+  help)    print_help; exit 0 ;;
+  list)    print_config; exit 0 ;;
+  version) echo "drift-guard $DRIFT_GUARD_VERSION"; exit 0 ;;
+  check)   do_check ;;
 esac
 
 if [[ $VIOLATIONS -eq 0 ]]; then
