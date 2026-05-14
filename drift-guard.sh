@@ -2,10 +2,10 @@
 # Drift guard — fails if canonical-only literals appear outside allowed files.
 #
 # Usage:
-#   bsh ./drift-guard.sh            # check (default)
-#   bsh ./drift-guard.sh --check    # check
-#   bsh ./drift-guard.sh --list     # print config
-#   bsh ./drift-guard.sh --help     # help
+#   bash ./drift-guard.sh            # check (default)
+#   bash ./drift-guard.sh --check    # check
+#   bash ./drift-guard.sh --list     # print config
+#   bash ./drift-guard.sh --help     # help
 
 set -euo pipefail
 
@@ -46,7 +46,7 @@ IGNORE_DIRS=(
   ".venv"
 )
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 VIOLATIONS=0
 
 print_help() {
@@ -56,7 +56,7 @@ Drift Guard
 Checks that canonical-only literals only appear in allowlisted files/folders.
 
 Usage:
-  bsh ./drift-guard.sh [--check|--list|--help]
+  bash ./drift-guard.sh [--check|--list|--help]
 
 Exit codes:
   0  no drift detected
