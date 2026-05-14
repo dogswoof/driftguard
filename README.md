@@ -39,7 +39,7 @@ Pick one pattern and document it in your project:
 
 ### Option A: Vendor the script (recommended for most teams)
 
-Copy `scripts/drift-guard.sh` into your repo (same path), then customize `LITERALS` and `ALLOWLIST`.
+Copy `drift-guard.sh` into your repo root, then customize `LITERALS` and `ALLOWLIST`.
 This avoids submodule overhead and keeps the config close to the docs it protects.
 
 ### Option B: Git submodule (pins a known version)
